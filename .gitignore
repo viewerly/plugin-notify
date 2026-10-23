@@ -1,0 +1,7 @@
+# Rust build output and the packed plugin
+/target/
+/dist/
+# The built component; build.sh copies it beside the manifest before packing
+/*.wasm
+
+.DS_Store

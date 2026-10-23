@@ -1,0 +1,16 @@
+id = "io.viewerly.notify"
+name = "Notify"
+version = "1.0.0"
+viewerly = ">=0.2"
+description = "Posts to Slack, Discord or ntfy when a session needs you: a permission request (which tool, and what for) or waiting for your input, and, if you allow it, when a session ends. It only tells you; it never acts on a session."
+
+[contributes]
+automation = "notify.wasm"
+ui = ["ui.toml"]
+
+[capabilities]
+# session.exited is optional: leave “See sessions ending” off in the grants sheet to be told only
+# when a session needs you.
+events = ["permission.requested", "session.status", "session.exited"]
+network = ["hooks.slack.com", "discord.com", "ntfy.sh"]
+notify = true

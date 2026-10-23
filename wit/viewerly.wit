@@ -1,0 +1,139 @@
+// The world a Viewerly automation is built against (docs/REWRITE.md §11). A plugin exports
+// `on-event`; the daemon calls it once for each event the plugin was allowed to see, one at a
+// time, with fuel and time limits. It has no files, no environment and no sockets: the host
+// functions below are all it can reach, and each checks what the plugin was granted.
+package viewerly:plugin@0.1.0;
+
+interface types {
+    enum status {
+        idle,
+        working,
+        waiting-for-permission,
+        waiting-for-input,
+        done,
+        error,
+    }
+
+    /// A session as a plugin sees it. No folders: those stay on the machine's own windows.
+    record session {
+        id: string,
+        project: string,
+        title: string,
+        agent: string,
+        status: status,
+    }
+
+    record permission {
+        /// Answer it by returning a decision from on-event.
+        id: string,
+        session: session,
+        tool: string,
+        summary: string,
+        /// The tool's input as JSON text.
+        input: string,
+    }
+
+    record files-changed {
+        project: string,
+        /// Relative to the project.
+        paths: list<string>,
+    }
+
+    /// One of the plugin's commands, session actions or panel buttons was used.
+    record invocation {
+        id: string,
+        /// The session it was used on, if any.
+        session: option<session>,
+    }
+
+    /// One of the plugin's settings fields was changed by the person.
+    record setting {
+        id: string,
+        value: string,
+    }
+
+    variant event {
+        /// The plugin has just been loaded or turned on: fill in panels and status items.
+        started,
+        /// Once a minute, for a plugin allowed the timer.minute event.
+        tick,
+        /// The person changed one of its settings fields.
+        setting-changed(setting),
+        status-changed(session),
+        session-started(session),
+        session-exited(session),
+        permission-requested(permission),
+        files-changed(files-changed),
+        invoked(invocation),
+    }
+
+    /// Only acted on with the "decide" grant, and only for a request nobody is looking at.
+    enum decision {
+        allow,
+        deny,
+    }
+
+    record button {
+        id: string,
+        label: string,
+    }
+
+    record progress {
+        percent: u8,
+        label: string,
+    }
+
+    /// A text field in a settings pane or panel. The host keeps what is typed, per plugin, and
+    /// shows it again; `value` here is ignored. A secret field shows dots and is never sent to
+    /// other devices.
+    record field {
+        id: string,
+        label: string,
+        placeholder: string,
+        secret: bool,
+    }
+
+    variant widget {
+        text(string),
+        markdown(string),
+        %list(list<string>),
+        key-value(list<tuple<string, string>>),
+        button(button),
+        progress(progress),
+        field(field),
+    }
+
+    record http-response {
+        status: u16,
+        body: list<u8>,
+    }
+}
+
+interface host {
+    use types.{widget, http-response};
+
+    /// A line in the daemon's log, under the plugin's id.
+    log: func(message: string);
+
+    /// Shows a notification on every window. Needs the notify grant.
+    notify: func(title: string, body: string);
+
+    /// HTTPS to one of the hosts the plugin was allowed; anything else is refused. No redirects.
+    http-request: func(method: string, url: string, headers: list<tuple<string, string>>, body: list<u8>) -> result<http-response, string>;
+
+    /// Replaces what a panel or settings pane the plugin declared shows.
+    set-panel: func(id: string, widgets: list<widget>);
+
+    /// Replaces a status item's text.
+    set-status: func(id: string, text: string);
+
+    /// What the person typed into one of the plugin's settings fields, if anything.
+    setting: func(id: string) -> option<string>;
+}
+
+world plugin {
+    use types.{event, decision};
+    import host;
+
+    export on-event: func(event: event) -> option<decision>;
+}

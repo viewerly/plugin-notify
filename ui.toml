@@ -1,0 +1,22 @@
+# Where Notify shows up. What these show after loading is set by the automation (src/lib.rs).
+
+[[command]]
+id = "test"
+title = "Notify: Send Test"
+
+[[panel]]
+id = "activity"
+title = "Notify"
+widgets = [{ type = "text", text = "Starting…" }]
+
+[[settings]]
+id = "destinations"
+title = "Notify"
+widgets = [
+  { type = "markdown", text = "Fill in any of these. Each message says which session needs you and why, and nothing else." },
+  { type = "field", id = "slack", label = "Slack webhook URL", placeholder = "https://hooks.slack.com/services/…", secret = true },
+  { type = "field", id = "discord", label = "Discord webhook URL", placeholder = "https://discord.com/api/webhooks/…", secret = true },
+  { type = "field", id = "ntfy_topic", label = "ntfy topic", placeholder = "a long, hard-to-guess name", secret = true },
+  { type = "field", id = "ntfy_server", label = "ntfy server", placeholder = "https://ntfy.sh", secret = false },
+  { type = "button", id = "test", label = "Send Test" },
+]

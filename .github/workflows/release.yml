@@ -1,0 +1,42 @@
+# On a v* tag: build the plugin for wasm32-wasip2 and attach the .vplugin to that tag's GitHub release, which is what
+# viewerly.io/plugins/submit and the in-app directory point at.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Rust for wasm32-wasip2
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-wasip2
+          rustup default stable
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Check the tag matches the manifest
+        run: |
+          version="$(sed -n 's/^version = "\(.*\)"$/\1/p' viewerly-plugin.toml | head -n 1)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "The tag is $GITHUB_REF_NAME but viewerly-plugin.toml says $version" >&2
+            exit 1
+          fi
+
+      - name: Build
+        run: ./build.sh
+
+      - name: Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          files: dist/*.vplugin
+          fail_on_unmatched_files: true
+          generate_release_notes: true
