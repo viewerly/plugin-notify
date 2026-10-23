@@ -71,7 +71,7 @@ Download `io.viewerly.notify-<version>.vplugin` from the
 [releases](https://github.com/viewerly/plugin-notify/releases), then:
 
 - **Settings › Plugins › Install from File…**, or
-- `viewerly plugin install io.viewerly.notify-1.0.0.vplugin`.
+- `viewerly plugin install io.viewerly.notify-0.1.0.vplugin`.
 
 Once it is listed in the directory, **Settings › Plugins › Browse Plugins…** installs it without a
 download. A plugin starts with nothing allowed; the grants sheet opens so you can choose.

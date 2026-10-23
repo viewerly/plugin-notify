@@ -1,6 +1,6 @@
 id = "io.viewerly.notify"
 name = "Notify"
-version = "1.0.0"
+version = "0.1.0"
 viewerly = ">=0.2"
 description = "Posts to Slack, Discord or ntfy when a session needs you: a permission request (which tool, and what for) or waiting for your input, and, if you allow it, when a session ends. It only tells you; it never acts on a session."
 

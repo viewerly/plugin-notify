@@ -1,7 +1,7 @@
 # Built for wasm32-wasip2 by build.sh. The component it makes is the plugin's automation.
 [package]
 name = "viewerly-notify"
-version = "1.0.0"
+version = "0.1.0"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/viewerly/plugin-notify"
